@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            width: 300px;
+            background: #f5f5f7;
+            font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            font-size: 13px;
+            color: #1d1d1f;
+            padding-bottom: 16px;
+        }
+
+        .titlebar {
+            background: linear-gradient(180deg, #e8e8ed 0%, #dcdce0 100%);
+            border-bottom: 1px solid #c7c7cc;
+            padding: 10px 14px 9px;
+            display: flex;
+            align-items: center;
+        }
+
+        .titlebar-dots { display: flex; gap: 6px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red    { background: #ff5f57; border: 1px solid #e0443e; }
+        .dot-yellow { background: #ffbd2e; border: 1px solid #dea123; }
+        .dot-green  { background: #28c840; border: 1px solid #1aab29; }
+
+        .titlebar-title {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3a3a3c;
+            letter-spacing: -0.2px;
+        }
+
+        .info-wrap {
+            position: relative;
+            width: 42px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .info-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff9f0a;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            flex-shrink: 0;
+        }
+
+        .tooltip {
+            display: none;
+            position: absolute;
+            top: 22px;
+            right: 0;
+            width: 210px;
+            background: #1c1c1e;
+            color: #f2f2f7;
+            font-size: 11px;
+            line-height: 1.5;
+            padding: 8px 10px;
+            border-radius: 8px;
+            z-index: 99;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: 4px;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #1c1c1e;
+        }
+
+        .info-wrap:hover .tooltip { display: block; }
+
+        .content { padding: 14px 16px 0; }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #d1d1d6;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .card-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f0f5;
+        }
+
+        .card-row:last-child { border-bottom: none; }
+
+        .row-label { font-size: 13px; color: #1d1d1f; }
+        .row-label span { font-size: 11px; color: #8e8e93; display: block; margin-top: 1px; }
+
+        input[type="time"] {
+            border: none; outline: none; background: transparent;
+            font-size: 13px; color: #007aff; font-family: inherit;
+            cursor: pointer; text-align: right;
+        }
+
+        .toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0;
+            background: #d1d1d6; border-radius: 20px;
+            transition: 0.2s; cursor: pointer;
+        }
+        .toggle-slider::before {
+            content: ''; position: absolute;
+            width: 16px; height: 16px; left: 2px; top: 2px;
+            background: white; border-radius: 50%;
+            transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .toggle input:checked + .toggle-slider { background: #34c759; }
+        .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+        .save-btn {
+            width: 100%;
+            padding: 10px;
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: -0.2px;
+            transition: background 0.15s;
+            margin-bottom: 10px;
+        }
+
+        .save-btn:hover { background: #0071eb; }
+        .save-btn:active { background: #0062cc; }
+
+        .status {
+            text-align: center;
+            font-size: 11px;
+            color: #8e8e93;
+            min-height: 16px;
+            margin-bottom: 10px;
+        }
+
+        .status.success { color: #34c759; }
+        .status.error   { color: #ff3b30; }
+
+        .author {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding-top: 2px;
+        }
+
+        .author-avatar {
+            width: 20px; height: 20px;
+            border-radius: 50%; object-fit: cover;
+            background: #d1d1d6;
+        }
+
+        .author-text { font-size: 11px; color: #8e8e93; }
+        .author-link { font-size: 11px; color: #007aff; text-decoration: none; }
+        .author-link:hover { text-decoration: underline; }
+
+        .section-header {
+            font-size: 11px;
+            color: #8e8e93;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 0 4px 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="titlebar">
+        <div class="titlebar-dots">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+        </div>
+        <div class="titlebar-title">自動簽到</div>
+        <div class="info-wrap">
+            <div class="info-icon">!</div>
+            <div class="tooltip">
+                若要讓瀏覽器關閉後仍可自動簽到，請至：<br><br>
+                瀏覽器 → 設定 → 進階 → 系統<br><br>
+                勾選「<b>Google Chrome 關閉時繼續執行背景應用程式</b>」
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <div class="card">
+            <div class="card-row">
+                <div class="row-label">
+                    簽到時間
+                    <span>每日自動執行</span>
+                </div>
+                <input type="time" id="checkinTime" value="00:01">
+            </div>
+        </div>
+
+        <div class="section-header">簽到網站</div>
+        <div class="card">
+            <div class="card-row">
+                <div class="row-label">apk.tw</div>
+                <label class="toggle">
+                    <input type="checkbox" id="apk" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="card-row">
+                <div class="row-label">bingfong.com</div>
+                <label class="toggle">
+                    <input type="checkbox" id="bingfong" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <button class="save-btn" id="saveBtn">儲存設定</button>
+        <div class="status" id="status"></div>
+
+        <div class="author">
+            <img class="author-avatar" id="avatar" src="" alt="">
+            <span class="author-text">by</span>
+            <a class="author-link" href="https://github.com/keezxc1223" target="_blank">@keezxc1223</a>
+        </div>
+
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
