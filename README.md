@@ -85,9 +85,11 @@ flowchart LR
 3. 右上角開啟 **開發人員模式**
 4. 點擊 **載入未封裝項目**，選擇專案資料夾
 
-### 方法二：Chrome Web Store
+### 方法二：Chrome Web Store（推薦）
 
-> 若已上架，可直接從 Chrome 線上應用程式商店安裝。
+<a href="https://chromewebstore.google.com/detail/nnomgpkeapbcalknabjhkalcdfolednn">
+  <img src="https://img.shields.io/badge/Chrome%20Web%20Store-安裝擴充功能-blue?logo=googlechrome&logoColor=white&style=for-the-badge" alt="Chrome Web Store" />
+</a>
 
 ## Usage
 
