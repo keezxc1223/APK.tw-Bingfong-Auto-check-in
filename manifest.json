@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "APK.tw & Bingfong 自動簽到",
-  "version": "1.3",
+  "version": "1.6",
   "description": "每日自動簽到 apk.tw 與 bingfong.com，可自訂簽到時間",
   "permissions": [
     "alarms",
-    "storage"
+    "storage",
+    "background"
   ],
   "host_permissions": [
     "*://apk.tw/*",
@@ -21,14 +22,13 @@
   "content_scripts": [
     {
       "matches": [
-        "*://apk.tw/forum.php*",
-        "*://www.apk.tw/forum.php*",
-        "*://bingfong.com/forum.php*",
-        "*://www.bingfong.com/forum.php*"
+        "*://apk.tw/*",
+        "*://www.apk.tw/*",
+        "*://bingfong.com/*",
+        "*://www.bingfong.com/*"
       ],
       "js": ["content.js"],
-      "run_at": "document_idle",
-      "world": "MAIN"
+      "run_at": "document_idle"
     }
   ],
   "action": {

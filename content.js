@@ -1,8 +1,6 @@
 (function() {
     const host = location.hostname.replace('www.', '');
-
-    const today = new Date().toDateString();
-    if (localStorage.getItem(host + '_checkin_date') === today) return;
+    const isAutoCheckin = location.hash === '#auto-checkin';
 
     const sites = {
         'apk.tw': {
@@ -36,9 +34,12 @@
         attempts++;
         if (site.checkin()) {
             clearInterval(timer);
-            localStorage.setItem(host + '_checkin_date', new Date().toDateString());
-            console.log('[自動簽到] 簽到成功！5 秒後重新整理');
-            setTimeout(function() { location.reload(); }, 5000);
+            if (isAutoCheckin) {
+                console.log('[自動簽到] 排程簽到成功！5 秒後重新整理');
+                setTimeout(function() { location.reload(); }, 5000);
+            } else {
+                console.log('[自動簽到] 簽到成功！');
+            }
         } else if (attempts >= 10) {
             clearInterval(timer);
             console.log('[自動簽到] 找不到簽到按鈕，可能已簽到或尚未登入');

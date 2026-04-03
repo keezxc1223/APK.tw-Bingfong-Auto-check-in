@@ -24,18 +24,42 @@ function scheduleAlarm(timeStr) {
     });
 }
 
+// 在現有視窗建立分頁，若無視窗則建立最小化視窗
+function openCheckinPages(urls) {
+    chrome.windows.getAll({ windowTypes: ['normal'] }, (windows) => {
+        if (windows.length > 0) {
+            // 有現有視窗，直接開背景分頁
+            urls.forEach(url => {
+                chrome.tabs.create({ url, active: false });
+            });
+        } else {
+            // 沒有視窗，建立最小化視窗開啟第一個網址
+            chrome.windows.create({ url: urls[0], state: 'minimized' }, (win) => {
+                // 其餘網址在同一視窗開新分頁
+                for (let i = 1; i < urls.length; i++) {
+                    chrome.tabs.create({ url: urls[i], windowId: win.id, active: false });
+                }
+            });
+        }
+        console.log('[自動簽到] 已開啟簽到頁面');
+    });
+}
+
 // 時間到，開啟兩個網站的簽到頁面
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name !== ALARM_NAME) return;
 
     chrome.storage.sync.get({ apk: true, bingfong: true }, (settings) => {
+        const urls = [];
         if (settings.apk) {
-            chrome.tabs.create({ url: 'https://apk.tw/forum.php', active: false });
+            urls.push('https://apk.tw/forum.php#auto-checkin');
         }
         if (settings.bingfong) {
-            chrome.tabs.create({ url: 'https://bingfong.com/forum.php', active: false });
+            urls.push('https://bingfong.com/forum.php#auto-checkin');
         }
-        console.log('[自動簽到] 已開啟簽到頁面');
+        if (urls.length > 0) {
+            openCheckinPages(urls);
+        }
     });
 });
 
