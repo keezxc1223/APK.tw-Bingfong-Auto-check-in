@@ -28,6 +28,7 @@
 
     const site = sites[host];
     if (!site) return;
+    if (!isAutoCheckin) return;
 
     var attempts = 0;
     var timer = setInterval(function() {

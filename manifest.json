@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "APK.tw & Bingfong 自動簽到",
-  "version": "1.6",
+  "version": "1.7",
   "description": "每日自動簽到 apk.tw 與 bingfong.com，可自訂簽到時間",
   "permissions": [
     "alarms",
