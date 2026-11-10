@@ -10,7 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Manifest-V3-blue" alt="Manifest V3" />
-  <img src="https://img.shields.io/badge/Version-1.6-green" alt="Version 1.6" />
+  <img src="https://img.shields.io/badge/Version-1.8-green" alt="Version 1.8" />
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License" />
   <img src="https://img.shields.io/badge/Chrome-Extension-red?logo=googlechrome&logoColor=white" alt="Chrome Extension" />
 </p>
@@ -27,9 +27,12 @@
 - 自訂簽到時間（預設 00:01）
 - 可分別開啟 / 關閉各網站的簽到功能
 - 支援瀏覽器背景執行，關閉視窗後仍可自動簽到（最小化視窗自動建立）
-- 簽到成功後自動重新整理頁面
 - 智慧視窗管理：有視窗時開背景分頁，無視窗時自動建立最小化視窗
-- 透過 URL hash (`#auto-checkin`) 區分排程觸發與手動瀏覽
+- 簽到後重新整理確認結果，完成後自動關閉分頁
+- 漏簽補簽：排程時間瀏覽器沒開，下次啟動時自動補簽
+- 遇到 Cloudflare 驗證時，分頁切到前景並在圖示顯示「!」；手動通過驗證後自動接續簽到（不會自動代為通過驗證）
+- Popup 顯示各網站今日狀態，並提供「立即簽到」按鈕
+- 只有擴充功能自己開的分頁會自動簽到，手動瀏覽不受影響
 
 ## Tech Stack
 
@@ -37,10 +40,10 @@
 |------|------|
 | 平台 | Chrome Extension (Manifest V3) |
 | 排程 | Chrome Alarms API |
-| 儲存 | Chrome Storage Sync API |
+| 儲存 | Chrome Storage API（sync：設定／local：簽到狀態／session：簽到分頁追蹤） |
 | 背景執行 | Service Worker + `background` 權限 |
 | 內容注入 | Content Scripts (`document_idle`) |
-| 簽到偵測 | DOM 元素點擊 + URL hash 辨識 |
+| 簽到偵測 | DOM 元素點擊 + 以分頁 ID 辨識簽到分頁 |
 
 ## Architecture
 
@@ -59,14 +62,13 @@ checkin-extension/
 
 ```mermaid
 flowchart LR
-    A[background.js<br/>Chrome Alarms] -->|時間到| B{有開啟的視窗?}
-    B -->|是| C[開啟背景分頁]
-    B -->|否| D[建立最小化視窗]
-    C --> E[content.js<br/>自動點擊簽到按鈕]
-    D --> E
-    E -->|排程觸發| F[5 秒後重新整理]
-    E -->|手動瀏覽| G[僅顯示成功訊息]
-    H[popup.js<br/>使用者設定] -->|儲存| A
+    A[background.js<br/>Chrome Alarms / 啟動補簽] -->|時間到| B[開啟簽到分頁<br/>記錄分頁 ID]
+    B --> E[content.js<br/>詢問是否為簽到分頁]
+    E -->|有簽到按鈕| F[點擊 → 重新整理確認]
+    E -->|Cloudflare 驗證| G[分頁切到前景 + 圖示「!」<br/>等待手動通過]
+    G -->|通過後頁面重載| E
+    F --> R[回報結果<br/>關閉分頁、更新狀態]
+    H[popup.js<br/>設定 / 立即簽到 / 狀態] --> A
 
     style A fill:#007aff,color:#fff
     style E fill:#34c759,color:#fff
@@ -117,6 +119,16 @@ flowchart LR
 
 ## Changelog
 
+### v1.8
+- 改以分頁 ID 追蹤簽到分頁，取代 URL hash（頁面重新載入後仍可接續）
+- 偵測 Cloudflare 驗證：分頁切到前景、圖示顯示「!」，手動通過後自動接續簽到
+- 漏簽補簽：瀏覽器啟動時若已過排程時間且今日未簽到，自動補簽
+- 簽到後確認結果並自動關閉分頁；3 分鐘無回應視為失敗
+- Bingfong 改為整頁前往簽到連結並讀取結果訊息（按鈕簽到前後都存在，且彈窗內無法顯示 Cloudflare 驗證）
+- APK.tw 以 `#ppered` 出現作為簽到成功／已簽到的依據
+- Popup 新增各網站今日狀態與「立即簽到」按鈕
+- 移除不需要的 `github.com` host 權限
+
 ### v1.6
 - 移除 `MAIN` world 注入，改用預設 Content Script 執行環境
 - Content Script 匹配範圍擴大至整站（`*://apk.tw/*`），不再限於 `forum.php`
@@ -136,7 +148,8 @@ flowchart LR
 
 - 需先在瀏覽器中登入 [APK.tw](https://apk.tw) / [Bingfong.com](https://bingfong.com) 帳號，擴充功能才能正常簽到
 - 若希望瀏覽器關閉後仍可簽到，請至 Chrome 設定 → 進階 → 系統，開啟「**Google Chrome 關閉時繼續執行背景應用程式**」
-- 簽到成功後會自動在 5 秒後重新整理頁面（僅排程觸發時）
+- 遇到 Cloudflare 驗證時需手動打勾一次，通過後擴充功能會自動完成簽到
+- 圖示出現「!」代表有網站需要處理（等待驗證／尚未登入／簽到失敗），點開 popup 可查看並前往
 
 ## License
 

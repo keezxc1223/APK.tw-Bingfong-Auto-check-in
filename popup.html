@@ -151,6 +151,16 @@
         .save-btn:hover { background: #0071eb; }
         .save-btn:active { background: #0062cc; }
 
+        .run-btn { background: #fff; color: #007aff; border: 1px solid #d1d1d6; }
+        .run-btn:hover { background: #f0f0f5; }
+        .run-btn:active { background: #e5e5ea; }
+        .run-btn:disabled { opacity: 0.5; cursor: default; }
+
+        .row-label span.ok   { color: #34c759; }
+        .row-label span.warn { color: #ff9f0a; }
+        .row-label span.err  { color: #ff3b30; }
+        .row-label span[data-action="1"] { cursor: pointer; text-decoration: underline; }
+
         .status {
             text-align: center;
             font-size: 11px;
@@ -224,14 +234,14 @@
         <div class="section-header">簽到網站</div>
         <div class="card">
             <div class="card-row">
-                <div class="row-label">apk.tw</div>
+                <div class="row-label">apk.tw<span id="apkState"></span></div>
                 <label class="toggle">
                     <input type="checkbox" id="apk" checked>
                     <span class="toggle-slider"></span>
                 </label>
             </div>
             <div class="card-row">
-                <div class="row-label">bingfong.com</div>
+                <div class="row-label">bingfong.com<span id="bingfongState"></span></div>
                 <label class="toggle">
                     <input type="checkbox" id="bingfong" checked>
                     <span class="toggle-slider"></span>
@@ -240,6 +250,7 @@
         </div>
 
         <button class="save-btn" id="saveBtn">儲存設定</button>
+        <button class="save-btn run-btn" id="runBtn">立即簽到</button>
         <div class="status" id="status"></div>
 
         <div class="author">
